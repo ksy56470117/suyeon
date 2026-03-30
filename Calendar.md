@@ -140,7 +140,7 @@ function generateDays(year, month) {
 // ══════════════════════════
 // ── 렌더링 ──
 // ══════════════════════════
-function render() {
+async function render() {
   container.empty();
   cs = loadCalState();
   const wrapper = container.createEl("div", { attr: { style: "max-width: 900px; margin: 0 auto;" } });
