@@ -140,6 +140,7 @@ async function render() {
   cs = loadCalState();
 
   // 반복 태스크 로드 (캘린더 셀에 반영)
+  const RECUR_PATH = "Recurring Tasks.md";
   const recurTasks = await readRecurTasks();
 
   // 날짜에 해당하는 반복 태스크 반환
@@ -724,7 +725,6 @@ async function render() {
   ];
 
   // Recurring Tasks.md 읽기 & 파싱
-  const RECUR_PATH = "Recurring Tasks.md";
   async function readRecurTasks() {
     const file = app.vault.getAbstractFileByPath(RECUR_PATH);
     if (!file) return [];
