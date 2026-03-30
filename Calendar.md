@@ -182,8 +182,10 @@ async function render() {
     });
   }
 
-  const wrapper = container.createEl("div", { attr: { style: "max-width: 900px; margin: 0 auto;" } });
-  wrapper.addEventListener("mousedown", e => e.stopPropagation());
+  const outerWrap = container.createEl("div", { attr: { style: "display: flex; gap: 0px; max-width: 1400px; margin: 0 auto; align-items: flex-start;" } });
+  outerWrap.addEventListener("mousedown", e => e.stopPropagation());
+
+  const wrapper = outerWrap.createEl("div", { attr: { style: "flex: 1; min-width: 0;" } });
 
   // ── Calendar Card ──
   const card = wrapper.createEl("div", { attr: { style: "border: 1px solid var(--background-modifier-border); border-radius: 8px; overflow: hidden; background: var(--background-primary); margin: 8px 16px;" } });
@@ -1049,6 +1051,118 @@ async function render() {
       if (ev.key === "Escape") { ev.stopPropagation(); recurFormEl.remove(); recurFormEl = null; recurFormVisible = false; }
     });
   });
+
+  // ══════════════════════════
+  // ── Upcoming 패널 (오른쪽 사이드바) ──
+  // ══════════════════════════
+  const upcomingPanel = outerWrap.createEl("div", { attr: { style: "width: 320px; flex-shrink: 0;" } });
+  const upCard = upcomingPanel.createEl("div", { attr: { style: "border: 1px solid var(--background-modifier-border); border-radius: 8px; overflow: hidden; background: var(--background-primary); margin: 8px 16px 30px 0;" } });
+
+  // Upcoming 헤더
+  const upHdr = upCard.createEl("div", { attr: { style: "display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--background-secondary-alt);" } });
+  upHdr.createEl("span", { text: "⏰", attr: { style: "font-size: 14px;" } });
+  upHdr.createEl("span", { text: "Upcoming", attr: { style: "font-size: 13px; font-weight: 700; font-family: 'SF Mono', ui-monospace, monospace;" } });
+
+  // Upcoming 태스크 수집
+  const upToday = new Date();
+  upToday.setHours(0,0,0,0);
+  const upcomingItems = [];
+
+  for (const t of allTasks) {
+    if (t.completed) continue;
+    if (!t.due) continue;
+    const dueDate = new Date(t.due + "T00:00:00");
+    if (isNaN(dueDate)) continue;
+    dueDate.setHours(0,0,0,0);
+    if (dueDate >= upToday) {
+      upcomingItems.push({ ...t, dueDate });
+    }
+  }
+
+  // 반복 태스크: 향후 14일분 추가
+  for (let di = 0; di < 14; di++) {
+    const futureDate = new Date(upToday);
+    futureDate.setDate(upToday.getDate() + di);
+    const ds = localDateStr(futureDate);
+    const recTasks = recurringTasksForDate(ds);
+    for (const rt of recTasks) {
+      if (!rt.completed) {
+        upcomingItems.push({ ...rt, dueDate: futureDate });
+      }
+    }
+  }
+
+  upcomingItems.sort((a, b) => a.dueDate - b.dueDate);
+
+  // 날짜별 그룹
+  const upGroups = new Map();
+  for (const item of upcomingItems) {
+    const key = localDateStr(item.dueDate);
+    if (!upGroups.has(key)) upGroups.set(key, { date: item.dueDate, tasks: [] });
+    upGroups.get(key).tasks.push(item);
+  }
+
+  const upBody = upCard.createEl("div", { attr: { style: "max-height: 600px; overflow-y: auto;" } });
+
+  if (upGroups.size === 0) {
+    const emptyEl = upBody.createEl("div", { attr: { style: "text-align: center; padding: 40px 0; color: var(--text-faint);" } });
+    emptyEl.createEl("div", { text: "📭", attr: { style: "font-size: 24px; margin-bottom: 6px;" } });
+    emptyEl.createEl("div", { text: "예정된 할 일 없음", attr: { style: "font-size: 12px;" } });
+  } else {
+    const upDayNames = ["일","월","화","수","목","금","토"];
+    for (const [key, group] of upGroups) {
+      const date = group.date;
+      const diff = Math.round((date - upToday) / 86400000);
+      const isUpToday = diff === 0;
+
+      // 날짜 헤더
+      const dateRow = upBody.createEl("div", { attr: {
+        style: "display: flex; align-items: baseline; gap: 6px; padding: 10px 12px 4px;"
+      }});
+      dateRow.createEl("span", {
+        text: String(date.getDate()),
+        attr: { style: `font-size: 18px; font-weight: 700; color: ${isUpToday ? "#2DA44E" : "var(--text-normal)"}; font-family: 'SF Mono', ui-monospace, monospace;` }
+      });
+      const dayLabel = isUpToday ? "오늘" : diff === 1 ? "내일" : `${upDayNames[date.getDay()]}요일`;
+      dateRow.createEl("span", { text: dayLabel, attr: { style: "font-size: 11px; color: var(--text-muted);" } });
+
+      if (diff > 1) {
+        dateRow.createEl("span", { attr: { style: "flex: 1;" } });
+        dateRow.createEl("span", { text: `${diff}일 후`, attr: { style: "font-size: 10px; color: var(--text-faint);" } });
+      }
+
+      upBody.createEl("hr", { attr: { style: "margin: 0 12px; border: none; border-top: 1px solid var(--background-modifier-border);" } });
+
+      // 태스크 행
+      for (const t of group.tasks) {
+        const row = upBody.createEl("div", { attr: {
+          style: "display: flex; align-items: center; gap: 6px; padding: 3px 12px; min-height: 28px;"
+        }});
+
+        const cColor = t.completed ? "var(--text-muted)" : "#2DA44E";
+        row.createEl("span", { text: t.completed ? "✓" : "○", attr: { style: `width: 16px; text-align: center; font-size: 12px; color: ${cColor};` } });
+
+        // 태그 dot
+        if (t.tag) {
+          const tc = getTagColor(t.tag);
+          row.createEl("span", { text: "●", attr: { style: `font-size: 8px; color: ${tc}; flex-shrink: 0;` } });
+        }
+        if (t.isRecurring) {
+          row.createEl("span", { text: "🔁", attr: { style: "font-size: 10px; flex-shrink: 0;" } });
+        }
+
+        row.createEl("span", {
+          text: t.text,
+          attr: { style: `font-size: 12px; ${t.completed ? "text-decoration: line-through; color: var(--text-muted);" : ""} overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;` }
+        });
+
+        if (t.time) {
+          const timeDisplay = t.time.includes("~") ? t.time.split("~")[0] : t.time;
+          row.createEl("span", { text: timeDisplay, attr: { style: "font-size: 10px; color: var(--text-faint); white-space: nowrap;" } });
+        }
+      }
+    }
+  }
 }
 
 render();
