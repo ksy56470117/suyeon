@@ -138,6 +138,35 @@ function generateDays(year, month) {
 async function render() {
   container.empty();
   cs = loadCalState();
+
+  // 반복 태스크 로드 (캘린더 셀에 반영)
+  const recurTasks = await readRecurTasks();
+
+  // 날짜에 해당하는 반복 태스크 반환
+  function recurringTasksForDate(dateStr) {
+    const d = new Date(dateStr + "T00:00:00");
+    const dow = d.getDay();
+    const isWeekday = dow >= 1 && dow <= 5;
+    const dowName = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"][dow];
+    return recurTasks.filter(rt => {
+      const p = rt.recur.replace("🔁","").trim();
+      if (p === "every day") return true;
+      if (p === "every weekday") return isWeekday;
+      if (p === `every ${dowName}`) return true;
+      return false;
+    }).map(rt => ({
+      text: rt.text,
+      rawText: rt.raw,
+      completed: rt.completed,
+      due: dateStr,
+      tag: "",
+      time: rt.time,
+      isRecurring: true,
+      path: "Recurring Tasks.md",
+      line: rt.line
+    }));
+  }
+
   const wrapper = container.createEl("div", { attr: { style: "max-width: 900px; margin: 0 auto;" } });
   wrapper.addEventListener("mousedown", e => e.stopPropagation());
 
@@ -187,7 +216,7 @@ async function render() {
 
   for (let i = 0; i < days.length; i++) {
     const day = days[i];
-    const tasks = tasksForDate(day.key);
+    const tasks = [...tasksForDate(day.key), ...recurringTasksForDate(day.key)];
     const isToday = day.key === TODAY;
     const isSel = day.key === cs.selDate;
     const level = contribLevel(tasks.length);
@@ -225,7 +254,8 @@ async function render() {
         style: `display: flex; align-items: stretch; gap: 2px; margin: 1px 2px; padding: 1px 3px; background: ${color}12; border-radius: 2px; overflow: hidden;`
       }});
       chip.createEl("div", { attr: { style: `width: 2px; background: ${color}; border-radius: 1px; flex-shrink: 0;` } });
-      const chipText = chip.createEl("span", { text: t.text, attr: {
+      const chipLabel = (t.isRecurring ? "🔁 " : "") + t.text + (t.time ? ` ${t.time}` : "");
+      const chipText = chip.createEl("span", { text: chipLabel, attr: {
         style: `font-size: 9px; line-height: 1.3; color: ${day.current ? "var(--text-normal)" : "var(--text-faint)"}; ${t.completed ? "text-decoration: line-through; opacity: 0.5;" : ""} font-family: 'SF Mono', ui-monospace, monospace; overflow: hidden;`
       }});
     }
@@ -246,7 +276,7 @@ async function render() {
   // ══════════════════════════
   // ── Issue List (선택 날짜) ──
   // ══════════════════════════
-  const selTasks = tasksForDate(cs.selDate);
+  const selTasks = [...tasksForDate(cs.selDate), ...recurringTasksForDate(cs.selDate)];
   const openCount = selTasks.filter(t => !t.completed).length;
   const closedCount = selTasks.filter(t => t.completed).length;
 
@@ -563,6 +593,14 @@ async function render() {
         tagChip.createEl("span", { text: t.tag });
       }
 
+      // 시간 배지
+      if (t.time) {
+        row.createEl("span", {
+          text: `⏰ ${t.time}`,
+          attr: { style: "font-size: 11px; color: #3B82F6; background: rgba(59,130,246,0.1); padding: 2px 8px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; font-family: 'SF Mono', ui-monospace, monospace;" }
+        });
+      }
+
       // 우클릭 → 컨텍스트 메뉴
       row.addEventListener("contextmenu", (ev) => {
         ev.preventDefault();
@@ -745,8 +783,6 @@ async function render() {
   }
 
   // 기존 반복 태스크 표시
-  const recurTasks = await readRecurTasks();
-
   if (recurTasks.length === 0) {
     const emptyRow = recurCard.createEl("div", { attr: { style: "display: flex; align-items: center; justify-content: center; gap: 8px; padding: 20px; color: var(--text-faint);" } });
     emptyRow.createEl("span", { text: "🔁" });
