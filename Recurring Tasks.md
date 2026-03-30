@@ -6,6 +6,7 @@ Tasks 플러그인 문법: `🔁 every day`, `🔁 every weekday`, `🔁 every m
 ### 매일
 
 ### 매주 특정 요일
+- [ ] 통학 🔁 every monday,tuesday,wednesday,thursday ⏰ monday:07:20~08:20,tuesday:07:20~08:20,wednesday:07:20~08:20,thursday:07:20~08:20
 - [ ] 북한학 🔁 every tuesday,thursday ⏰ tuesday:12:30~13:45,thursday:14:00~15:15
 - [ ] 신상문 🔁 every monday,thursday ⏰ monday:11:00~12:15,thursday:12:30~13:45 ✅ 2026-03-30
 - [ ] sw리더십과기업가정신 🔁 every tuesday ⏰ tuesday:17:00~18:15
