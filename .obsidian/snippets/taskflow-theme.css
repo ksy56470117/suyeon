@@ -1,0 +1,501 @@
+/* ============================================
+   TaskFlow GitHub-Style Theme for Obsidian
+   Accent: #2DA44E (ghGreen)
+   ============================================ */
+
+/* ── CSS Variables ── */
+:root {
+  --gh-green: #2DA44E;
+  --gh-green-hover: #2C974B;
+  --gh-green-10: rgba(45, 164, 78, 0.1);
+  --gh-green-15: rgba(45, 164, 78, 0.15);
+  --gh-green-30: rgba(45, 164, 78, 0.3);
+  --gh-green-55: rgba(45, 164, 78, 0.55);
+  --gh-green-80: rgba(45, 164, 78, 0.8);
+  --card-radius: 8px;
+  --card-border: 1px solid var(--background-modifier-border);
+  --header-bg: var(--background-secondary-alt);
+}
+
+/* ── Accent Color Override ── */
+body {
+  --interactive-accent: var(--gh-green);
+  --interactive-accent-hover: var(--gh-green-hover);
+  --text-accent: var(--gh-green);
+  --text-accent-hover: var(--gh-green-hover);
+}
+
+/* ── Checkbox: GitHub Issue Style ── */
+.markdown-source-view .task-list-item-checkbox,
+.markdown-preview-view .task-list-item-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--gh-green);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  vertical-align: middle;
+  margin-right: 6px;
+  transition: all 0.15s ease;
+}
+
+.markdown-source-view .task-list-item-checkbox:checked,
+.markdown-preview-view .task-list-item-checkbox:checked {
+  background: var(--text-muted);
+  border-color: var(--text-muted);
+}
+
+.markdown-source-view .task-list-item-checkbox:checked::after,
+.markdown-preview-view .task-list-item-checkbox:checked::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  color: white;
+  font-weight: bold;
+}
+
+.markdown-source-view .task-list-item-checkbox:not(:checked),
+.markdown-preview-view .task-list-item-checkbox:not(:checked) {
+  border-style: dashed;
+  border-color: var(--gh-green);
+}
+
+/* Completed task text: strikethrough + muted */
+.markdown-source-view .task-list-item.is-checked .task-list-item-checkbox ~ *,
+.markdown-preview-view .task-list-item.is-checked > p,
+.markdown-preview-view .task-list-item.is-checked > .list-bullet ~ * {
+  text-decoration: line-through;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* ── Headers ── */
+.markdown-preview-view h1 {
+  border-bottom: 2px solid var(--gh-green-30);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+.markdown-preview-view h2 {
+  color: var(--gh-green);
+  margin-top: 20px;
+}
+
+/* ── Tags: GitHub Label Style ── */
+.tag,
+a.tag {
+  font-size: 11px !important;
+  font-weight: 600;
+  padding: 2px 8px !important;
+  border-radius: 12px !important;
+  background: var(--gh-green-10) !important;
+  color: var(--gh-green) !important;
+  border: none !important;
+}
+
+.tag:hover,
+a.tag:hover {
+  background: var(--gh-green-15) !important;
+}
+
+/* ── Callouts: Card Style ── */
+.callout {
+  border-radius: var(--card-radius) !important;
+  border: var(--card-border) !important;
+  overflow: hidden;
+  background: var(--background-primary) !important;
+  box-shadow: none !important;
+  margin: 8px 0;
+}
+
+.callout-title {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 14px;
+  background: var(--header-bg);
+}
+
+.callout[data-callout="today"] .callout-title { color: var(--gh-green); }
+.callout[data-callout="project"] .callout-title { color: #3B82F6; }
+.callout[data-callout="exam"] .callout-title { color: #F59E0B; }
+.callout[data-callout="spending"] .callout-title { color: #6366F1; }
+.callout[data-callout="stats"] .callout-title { color: #14B8A6; }
+
+/* ── Blockquotes ── */
+blockquote {
+  border-left: 3px solid var(--gh-green) !important;
+  background: var(--gh-green-10);
+  padding: 8px 14px;
+  border-radius: 0 var(--card-radius) var(--card-radius) 0;
+}
+
+/* ── Code: Green accent ── */
+.markdown-preview-view code,
+.cm-s-obsidian .cm-inline-code {
+  color: var(--gh-green);
+}
+
+/* ── Links: Green Accent ── */
+.markdown-preview-view a.internal-link,
+.markdown-preview-view a.external-link {
+  color: var(--gh-green);
+  text-decoration: none;
+}
+
+.markdown-preview-view a.internal-link:hover,
+.markdown-preview-view a.external-link:hover {
+  color: var(--gh-green-hover);
+  text-decoration: underline;
+}
+
+/* ── Tables: Clean Card Style ── */
+.markdown-preview-view table {
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  border: var(--card-border);
+  width: 100%;
+}
+
+.markdown-preview-view table thead tr {
+  background: var(--header-bg);
+}
+
+.markdown-preview-view table tbody td {
+  padding: 6px 14px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.markdown-preview-view table tbody tr:hover {
+  background: var(--background-secondary-alt);
+}
+
+/* ── Buttons: GitHub Green ── */
+button.mod-cta {
+  background: var(--gh-green) !important;
+  color: white !important;
+  border-radius: 6px !important;
+}
+
+button.mod-cta:hover {
+  background: var(--gh-green-hover) !important;
+}
+
+/* ── Scrollbar: Minimal ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: var(--background-modifier-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+/* ── Calendar Plugin ── */
+.calendar .day.has-note {
+  background: var(--gh-green-30) !important;
+  border-radius: 4px;
+}
+
+.calendar .day.today {
+  border: 2px solid var(--gh-green) !important;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.calendar .day.active {
+  background: var(--gh-green) !important;
+  color: white !important;
+  border-radius: 4px;
+}
+
+/* ── Contribution Heatmap ── */
+.contrib-0 { background: var(--background-modifier-border); }
+.contrib-1 { background: var(--gh-green-30); }
+.contrib-2 { background: var(--gh-green-55); }
+.contrib-3 { background: var(--gh-green-80); }
+.contrib-4 { background: var(--gh-green); }
+
+/* ── Kanban ── */
+.kanban-plugin__lane {
+  border-radius: var(--card-radius) !important;
+  border: var(--card-border) !important;
+}
+
+.kanban-plugin__lane-header-wrapper {
+  background: var(--header-bg) !important;
+  font-weight: 700;
+}
+
+.kanban-plugin__item {
+  border-radius: 6px !important;
+  border: var(--card-border) !important;
+}
+
+/* ── Progress Bar ── */
+progress {
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+progress::-webkit-progress-bar {
+  background: var(--background-secondary);
+  border-radius: 4px;
+}
+
+progress::-webkit-progress-value {
+  background: var(--gh-green);
+  border-radius: 4px;
+}
+
+/* ── Timer Widget Styles ── */
+.timer-container {
+  border: var(--card-border);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  margin: 4px 0;
+}
+
+.timer-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--background-secondary-alt);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.timer-header .icon {
+  color: var(--gh-green);
+}
+
+.timer-display {
+  font-size: 42px;
+  font-weight: 700;
+  font-family: var(--font-default);
+  text-align: center;
+  padding: 16px 0 10px;
+  color: var(--gh-green);
+  letter-spacing: 1px;
+}
+
+.timer-subject {
+  text-align: center;
+  font-size: 13px;
+  font-family: var(--font-default);
+  color: var(--text-muted);
+  padding-bottom: 6px;
+}
+
+.timer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 18px;
+  border-radius: 6px;
+  border: none;
+  font-size: 13px;
+  font-family: var(--font-default);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.timer-btn-start {
+  background: var(--gh-green);
+  color: white;
+}
+
+.timer-btn-start:hover {
+  background: var(--gh-green-hover);
+}
+
+.timer-btn-stop {
+  background: #D73A4A;
+  color: white;
+}
+
+.timer-btn-stop:hover {
+  background: #c42f3e;
+}
+
+.timer-btn-reset {
+  background: var(--background-secondary);
+  color: var(--text-muted);
+}
+
+.timer-btn-reset:hover {
+  background: var(--background-modifier-border);
+}
+
+.timer-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px 12px;
+}
+
+.timer-log {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.timer-log-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  border-top: 1px solid var(--background-modifier-border);
+  font-size: 12px;
+  font-family: var(--font-default);
+}
+
+.timer-log-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gh-green);
+  flex-shrink: 0;
+}
+
+.timer-log-time {
+  font-family: var(--font-default);
+  font-size: 11px;
+  color: var(--gh-green);
+  background: var(--gh-green-10);
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+
+.timer-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  background: var(--background-secondary-alt);
+  font-size: 12px;
+  font-family: var(--font-default);
+  font-weight: 600;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.timer-total-value {
+  font-family: var(--font-default);
+  color: var(--gh-green);
+}
+
+/* ============================================
+   Things 3-Style Sidebar
+   ============================================ */
+
+/* ── Sidebar: Clean Background ── */
+.workspace-leaf-content[data-type="file-explorer"],
+.mk-sidebar {
+  background: var(--background-primary) !important;
+}
+
+/* ── Nav Items: Things 3 Spacing ── */
+.nav-file-title,
+.mk-tree-wrapper .mk-file-tree .mk-tree-text {
+  font-size: 13px !important;
+  font-weight: 500;
+  padding: 4px 10px !important;
+  border-radius: 8px;
+  margin: 1px 6px;
+  transition: background 0.1s ease;
+}
+
+.nav-file-title:hover,
+.mk-tree-wrapper .mk-file-tree .mk-tree-text:hover {
+  background: var(--background-secondary) !important;
+}
+
+.nav-file-title.is-active,
+.mk-tree-wrapper .mk-file-tree .mk-tree-text.is-active {
+  background: var(--gh-green-10) !important;
+  color: var(--gh-green) !important;
+  font-weight: 600;
+}
+
+/* ── Folder Titles: Section Headers ── */
+.nav-folder-title,
+.mk-tree-wrapper .mk-folder-text {
+  font-size: 11px !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted) !important;
+  padding: 12px 10px 4px !important;
+  margin: 0 6px;
+}
+
+/* ── Sidebar Icons: Larger + Colored ── */
+.mk-tree-wrapper .mk-sticker {
+  width: 20px !important;
+  height: 20px !important;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+/* ── Collapse Arrows: Subtle ── */
+.nav-folder-collapse-indicator,
+.mk-tree-wrapper .mk-collapse {
+  opacity: 0.3;
+  transition: opacity 0.15s;
+}
+
+.nav-folder:hover .nav-folder-collapse-indicator,
+.mk-tree-wrapper:hover .mk-collapse {
+  opacity: 0.7;
+}
+
+/* ── Hide Clutter ── */
+.nav-file-title-content[data-path$=".canvas"],
+.nav-folder-title[data-path="Templates"],
+.nav-folder-title[data-path="Tags"] {
+  display: none;
+}
+
+/* ── Sidebar Divider Between Sections ── */
+.nav-folder + .nav-folder {
+  border-top: 1px solid var(--background-modifier-border);
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
+/* ── Vault Title: Hidden ── */
+.nav-folder.mod-root > .nav-folder-title {
+  display: none;
+}
+
+/* ── Scrollbar in Sidebar: Ultra Thin ── */
+.workspace-leaf-content[data-type="file-explorer"] ::-webkit-scrollbar,
+.mk-sidebar ::-webkit-scrollbar {
+  width: 3px;
+}
+
+/* ── Taskflow Card: Force Read-Only ── */
+.taskflow-card .cm-editor .cm-content {
+  pointer-events: none;
+  user-select: none;
+}
+.taskflow-card .cm-editor .cm-cursorLayer,
+.taskflow-card .cm-editor .cm-selectionLayer {
+  display: none;
+}
+.taskflow-card .markdown-source-view .cm-scroller {
+  cursor: default;
+}
+.taskflow-card .view-header-title-container::after {
+  content: "🔒";
+  font-size: 10px;
+  margin-left: 4px;
+  opacity: 0.5;
+}

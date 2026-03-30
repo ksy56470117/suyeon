@@ -1,0 +1,334 @@
+/* Things 3 Style Sidebar for Obsidian */
+
+/* ─── 기본 폰트 리셋 ────────────────────────────────── */
+.workspace-leaf-content[data-type="file-explorer"],
+.nav-folder-title,
+.nav-folder-title-content,
+.nav-file-title,
+.nav-file-title-content {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+/* ─── Sidebar Container ─────────────────────────────── */
+.nav-folder-title,
+.nav-file-title {
+  border-radius: 8px !important;
+  padding: 4px 8px !important;
+  margin: 1px 6px !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+  transition: background 0.1s ease !important;
+  color: var(--nav-item-color) !important;
+}
+
+/* ─── Hover State ───────────────────────────────────── */
+.nav-folder-title:hover,
+.nav-file-title:hover {
+  background-color: var(--nav-item-background-hover) !important;
+  color: var(--nav-item-color-hover) !important;
+}
+
+/* ─── Active / Selected Item ────────────────────────── */
+.nav-file-title.is-active {
+  background-color: var(--interactive-accent) !important;
+  color: #fff !important;
+  font-weight: 500 !important;
+}
+
+.nav-file-title.is-active .nav-file-title-content {
+  color: #fff !important;
+}
+
+/* ─── Folder Collapse Arrow ─────────────────────────── */
+.nav-folder-collapse-indicator {
+  color: var(--nav-collapse-icon-color) !important;
+  opacity: 0.5 !important;
+}
+
+.nav-folder.is-collapsed .nav-folder-collapse-indicator {
+  opacity: 0.35 !important;
+}
+
+/* ─── Folder Title ──────────────────────────────────── */
+.nav-folder > .nav-folder-title {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: var(--text-muted) !important;
+  padding-top: 14px !important;
+  padding-bottom: 3px !important;
+  margin-top: 4px !important;
+  background: transparent !important;
+}
+
+.nav-folder > .nav-folder-title:hover {
+  background: transparent !important;
+  color: var(--text-normal) !important;
+}
+
+/* ─── Root-level folders styled as section headers ─── */
+.nav-folder.mod-root > .nav-folder-children > .nav-folder > .nav-folder-title {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: var(--text-muted) !important;
+}
+
+/* ─── File Name ─────────────────────────────────────── */
+.nav-file-title-content {
+  font-size: 13px !important;
+  color: var(--nav-item-color) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* ─── Indentation Guide Lines ───────────────────────── */
+.nav-folder-children {
+  border-left: none !important;
+  margin-left: 12px !important;
+  padding-left: 0 !important;
+}
+
+/* ─── Sidebar Left Panel ────────────────────────────── */
+.nav-files-container {
+  padding: 6px 0 !important;
+}
+
+/* ─── Sidebar Background ────────────────────────────── */
+.workspace-leaf-content[data-type="file-explorer"] {
+  padding: 0 !important;
+}
+
+/* ─── Search Bar in Sidebar ─────────────────────────── */
+.search-input-container input {
+  border-radius: 8px !important;
+  border: none !important;
+  background-color: var(--background-modifier-form-field) !important;
+  font-size: 13px !important;
+  padding: 5px 10px !important;
+}
+
+/* ─── Tag List (Things 3 tag style) ─────────────────── */
+.tag-pane-tag {
+  border-radius: 20px !important;
+  padding: 2px 10px !important;
+  font-size: 12px !important;
+  background-color: var(--background-modifier-hover) !important;
+  margin: 2px 4px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* ─── Outline / Headings Pane ───────────────────────── */
+.tree-item-self {
+  border-radius: 6px !important;
+  padding: 3px 8px !important;
+  margin: 1px 4px !important;
+  font-size: 13px !important;
+}
+
+.tree-item-self:hover {
+  background-color: var(--nav-item-background-hover) !important;
+}
+
+.tree-item-self.is-clickable:active,
+.tree-item-self.is-active {
+  background-color: var(--interactive-accent) !important;
+  color: #fff !important;
+}
+
+/* ─── Left Sidebar Width Comfort ────────────────────── */
+.workspace-split.mod-left-split {
+  min-width: 220px !important;
+}
+
+/* ─── Dividers between sections ─────────────────────── */
+.nav-folder-children > .nav-folder:not(:first-child) > .nav-folder-title {
+  margin-top: 8px !important;
+}
+
+/* ─── Scrollbar (Things 3 thin scrollbar) ───────────── */
+.workspace-leaf-content[data-type="file-explorer"] ::-webkit-scrollbar {
+  width: 4px !important;
+}
+
+.workspace-leaf-content[data-type="file-explorer"] ::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb-bg) !important;
+  border-radius: 4px !important;
+}
+
+/* ─── Things 3 accent color (blue) ─────────────────── */
+:root {
+  --things3-blue: #147EFB;
+}
+
+.nav-file-title.is-active {
+  background-color: var(--things3-blue) !important;
+}
+
+.tree-item-self.is-active {
+  background-color: var(--things3-blue) !important;
+}
+
+/* ─── Folder Icons (Lucide SVG) & Colors ────────────── */
+
+/* collapse indicator 숨기기 */
+.nav-folder-collapse-indicator {
+  display: none !important;
+}
+
+/* 기본 폴더 아이콘 (개별 지정된 것만 표시) */
+.nav-folder-title-content::before {
+  content: "" !important;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: middle;
+  flex-shrink: 0;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: none;
+}
+
+/* Make.md 자체 폴더 아이콘 숨기기 */
+.nav-folder-title .mk-sticker,
+.nav-folder-title .mk-icon,
+.nav-folder-title svg.svg-icon,
+.mk-tree-wrapper .mk-sticker {
+  display: none !important;
+}
+
+/* ── suyeon 루트: home ── */
+.nav-folder-title[data-path="suyeon"] .nav-folder-title-content::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23147EFB' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/%3E%3Cpolyline points='9 22 9 12 15 12 15 22'/%3E%3C/svg%3E");
+}
+.nav-folder-title[data-path="suyeon"] .nav-folder-title-content { color: #147EFB !important; font-weight: 600 !important; }
+
+/* ── Daily: calendar ── */
+.nav-folder-title[data-path="Daily"] .nav-folder-title-content::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2334AADC' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+}
+.nav-folder-title[data-path="Daily"] .nav-folder-title-content { color: #34AADC !important; }
+
+/* ── Day Planners: calendar-clock ── */
+.nav-folder-title[data-path="Day Planners"] .nav-folder-title-content::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23FF9F0A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5'/%3E%3Cpath d='M16 2v4'/%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M3 10h5'/%3E%3Ccircle cx='16' cy='16' r='6'/%3E%3Cpath d='M16 14v2l1 1'/%3E%3C/svg%3E");
+}
+.nav-folder-title[data-path="Day Planners"] .nav-folder-title-content { color: #FF9F0A !important; }
+
+/* ── 26-1: graduation-cap (계층구조) ── */
+.nav-folder-title[data-path="26-1"] .nav-folder-title-content::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23BF5AF2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z'/%3E%3Cpath d='M22 10v6'/%3E%3Cpath d='M6 12.5V16a6 3 0 0 0 12 0v-3.5'/%3E%3C/svg%3E");
+}
+.nav-folder-title[data-path="26-1"] .nav-folder-title-content { color: #BF5AF2 !important; }
+
+/* 26-1 하위 과목: 아이콘 없이 흰색 텍스트 */
+.nav-folder-title[data-path^="26-1/"] .nav-folder-title-content::before { display: none !important; }
+.nav-folder-title[data-path^="26-1/"] .nav-folder-title-content { color: var(--text-normal) !important; }
+
+/* ── Tags: tag ── */
+.nav-folder-title[data-path="Tags"] .nav-folder-title-content::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23FFD60A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z'/%3E%3Ccircle cx='7.5' cy='7.5' r='.5' fill='%23FFD60A'/%3E%3C/svg%3E");
+}
+.nav-folder-title[data-path="Tags"] .nav-folder-title-content { color: #FFD60A !important; }
+
+/* ── Templates: layout-template ── */
+.nav-folder-title[data-path="Templates"] .nav-folder-title-content::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2398989D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='7' x='3' y='3' rx='1'/%3E%3Crect width='9' height='7' x='3' y='14' rx='1'/%3E%3Crect width='5' height='7' x='16' y='14' rx='1'/%3E%3C/svg%3E");
+}
+.nav-folder-title[data-path="Templates"] .nav-folder-title-content { color: #98989D !important; }
+
+/* ── CPA: scale (계층구조) ── */
+.nav-folder-title[data-path="CPA"] .nav-folder-title-content::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23F97316' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z'/%3E%3Cpath d='m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z'/%3E%3Cpath d='M7 21h10'/%3E%3Cpath d='M12 3v18'/%3E%3Cpath d='M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2'/%3E%3C/svg%3E");
+}
+.nav-folder-title[data-path="CPA"] .nav-folder-title-content { color: #F97316 !important; }
+
+/* CPA 하위 과목: 아이콘 없이 흰색 텍스트 */
+.nav-folder-title[data-path^="CPA/"] .nav-folder-title-content::before { display: none !important; }
+.nav-folder-title[data-path^="CPA/"] .nav-folder-title-content { color: var(--text-normal) !important; }
+
+/* ─── Calendar / Timer / Upcoming 상단 고정 ─── */
+.nav-folder.mod-root > .nav-folder-children > .nav-folder-children {
+  display: initial !important;
+}
+.nav-folder.mod-root > .nav-folder-title + .nav-folder-children {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.nav-folder.mod-root > .nav-folder-title + .nav-folder-children > .nav-file:has(.nav-file-title[data-path="Calendar.md"]) {
+  order: -3;
+}
+.nav-folder.mod-root > .nav-folder-title + .nav-folder-children > .nav-file:has(.nav-file-title[data-path="Timer.md"]) {
+  order: -2;
+}
+.nav-folder.mod-root > .nav-folder-title + .nav-folder-children > .nav-file:has(.nav-file-title[data-path="Upcoming.md"]) {
+  order: -1;
+  border-bottom: 1px solid var(--background-modifier-border);
+  margin-bottom: 8px !important;
+  padding-bottom: 4px !important;
+}
+
+/* ─── Timer 강조 (lucide: timer) ─── */
+.nav-file-title[data-path="Timer.md"] {
+  font-weight: 600 !important;
+  color: #FF9F0A !important;
+  border-left: 3px solid #FF9F0A !important;
+  border-radius: 0 8px 8px 0 !important;
+}
+.nav-file-title[data-path="Timer.md"] .nav-file-title-content::before {
+  content: "" !important;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: middle;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23FF9F0A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='10' x2='14' y1='2' y2='2'/%3E%3Cline x1='12' x2='15' y1='14' y2='11'/%3E%3Ccircle cx='12' cy='14' r='8'/%3E%3C/svg%3E");
+}
+
+/* ─── Upcoming 강조 (lucide: list-checks) ─── */
+.nav-file-title[data-path="Upcoming.md"] {
+  font-weight: 600 !important;
+  color: #34AADC !important;
+  border-left: 3px solid #34AADC !important;
+  border-radius: 0 8px 8px 0 !important;
+}
+.nav-file-title[data-path="Upcoming.md"] .nav-file-title-content::before {
+  content: "" !important;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: middle;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2334AADC' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 17 2 2 4-4'/%3E%3Cpath d='m3 7 2 2 4-4'/%3E%3Cpath d='M13 6h8'/%3E%3Cpath d='M13 12h8'/%3E%3Cpath d='M13 18h8'/%3E%3C/svg%3E");
+}
+
+/* ─── Calendar 강조 (lucide: calendar-days) ─── */
+.nav-file-title[data-path="Calendar.md"] {
+  font-weight: 600 !important;
+  color: #30D158 !important;
+  border-left: 3px solid #30D158 !important;
+  border-radius: 0 8px 8px 0 !important;
+}
+.nav-file-title[data-path="Calendar.md"] .nav-file-title-content::before {
+  content: "" !important;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: middle;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2330D158' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3Cpath d='M8 14h.01'/%3E%3Cpath d='M12 14h.01'/%3E%3Cpath d='M16 14h.01'/%3E%3Cpath d='M8 18h.01'/%3E%3Cpath d='M12 18h.01'/%3E%3Cpath d='M16 18h.01'/%3E%3C/svg%3E");
+}

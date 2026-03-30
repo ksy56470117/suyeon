@@ -1,0 +1,11 @@
+{
+  "enabledCssSnippets": [
+    "supercharged-links-gen",
+    "taskflow-theme",
+    "things3-sidebar"
+  ],
+  "theme": "obsidian",
+  "interfaceFontFamily": "Inter",
+  "textFontFamily": "Inter",
+  "monospaceFontFamily": "Inter"
+}
