@@ -4,6 +4,7 @@
 Tasks 플러그인 문법: `🔁 every day`, `🔁 every weekday`, `🔁 every monday` 등
 
 ### 매일
-- [ ] 아침밥 🔁 every day
 
 ### 매주 특정 요일
+- [ ] 네트워크보안 🔁 every thursday ⏰ 11:00~12:15
+- [ ] 네트워크보안 🔁 every monday ⏰ 09:30~10:45
