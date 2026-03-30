@@ -694,13 +694,17 @@ async function render() {
     const lines = content.split("\n");
     const tasks = [];
     for (let i = 0; i < lines.length; i++) {
-      const m = lines[i].match(/^- \[( |x)\] (.+?)\s+(🔁\s*.+)$/);
+      const timePart = lines[i].match(/⏰\s*(\d{2}:\d{2}~\d{2}:\d{2})/);
+      const timeStr = timePart ? timePart[1] : null;
+      const lineWithoutTime = lines[i].replace(/\s*⏰\s*\d{2}:\d{2}~\d{2}:\d{2}/, "");
+      const m = lineWithoutTime.match(/^- \[( |x)\] (.+?)\s+(🔁\s*.+)$/);
       if (m) {
         tasks.push({
           line: i,
           completed: m[1] === "x",
           text: m[2].trim(),
           recur: m[3].trim(),
+          time: timeStr,
           raw: lines[i]
         });
       }
@@ -708,9 +712,10 @@ async function render() {
     return tasks;
   }
 
-  async function addRecurTask(text, pattern) {
+  async function addRecurTask(text, pattern, startTime, endTime) {
+    const timeSuffix = (startTime && endTime) ? ` ⏰ ${startTime}~${endTime}` : "";
     const file = app.vault.getAbstractFileByPath(RECUR_PATH);
-    const newLine = `- [ ] ${text} 🔁 ${pattern}`;
+    const newLine = `- [ ] ${text} 🔁 ${pattern}${timeSuffix}`;
     if (file) {
       const content = await app.vault.read(file);
       // "### 매일" 또는 "### 매주 특정 요일" 섹션 뒤에 추가
@@ -768,6 +773,14 @@ async function render() {
         attr: { style: "font-size: 11px; color: #2DA44E; background: rgba(45,164,78,0.1); padding: 2px 8px; border-radius: 10px; white-space: nowrap;" }
       });
 
+      // 시간 배지
+      if (rt.time) {
+        rtRow.createEl("span", {
+          text: `⏰ ${rt.time}`,
+          attr: { style: "font-size: 11px; color: #3B82F6; background: rgba(59,130,246,0.1); padding: 2px 8px; border-radius: 10px; white-space: nowrap;" }
+        });
+      }
+
       // 삭제 버튼
       const delBtn = rtRow.createEl("span", { text: "✕", attr: {
         style: "font-size: 11px; color: var(--text-faint); cursor: pointer; padding: 2px 4px; border-radius: 4px; flex-shrink: 0;"
@@ -808,6 +821,20 @@ async function render() {
       style: "flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--background-modifier-border); background: var(--background-secondary); color: var(--text-normal); font-size: 13px; outline: none;"
     }});
     setTimeout(() => recurInput.focus(), 50);
+
+    // 시간 설정
+    const timeRow = recurFormEl.createEl("div", { attr: { style: "display: flex; align-items: center; gap: 8px; margin-bottom: 8px;" } });
+    timeRow.createEl("span", { text: "⏰", attr: { style: "font-size: 13px; flex-shrink: 0;" } });
+    const startTimeInput = timeRow.createEl("input", { attr: {
+      type: "time",
+      style: "padding: 4px 8px; border-radius: 6px; border: 1px solid var(--background-modifier-border); background: var(--background-secondary); color: var(--text-normal); font-size: 12px;"
+    }});
+    timeRow.createEl("span", { text: "~", attr: { style: "color: var(--text-muted); font-size: 13px;" } });
+    const endTimeInput = timeRow.createEl("input", { attr: {
+      type: "time",
+      style: "padding: 4px 8px; border-radius: 6px; border: 1px solid var(--background-modifier-border); background: var(--background-secondary); color: var(--text-normal); font-size: 12px;"
+    }});
+    timeRow.createEl("span", { text: "(선택)", attr: { style: "font-size: 10px; color: var(--text-faint);" } });
 
     // 패턴 선택 (가로 스크롤 칩)
     const patternRow = recurFormEl.createEl("div", { attr: { style: "display: flex; gap: 4px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 2px;" } });
@@ -858,7 +885,7 @@ async function render() {
     async function submitRecur() {
       const title = recurInput.value.trim();
       if (!title) return;
-      await addRecurTask(title, selectedPattern);
+      await addRecurTask(title, selectedPattern, startTimeInput.value || null, endTimeInput.value || null);
       recurFormEl.remove(); recurFormEl = null; recurFormVisible = false;
       setTimeout(() => render(), 300);
     }
