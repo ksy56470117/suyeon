@@ -201,7 +201,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -221,16 +222,18 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "e45884a0498d27a2",
+  "active": "26e37f26c8282078",
   "lastOpenFiles": [
+    "Daily/2026-04-20.md",
+    "Calendar.md",
+    "Upcoming.md",
+    "Daily/2026-04-04.md",
     "Day Planners/Day Planner-20260331.md",
     "26-1/26-1.md",
     "CPA/CPA.md",
-    "Upcoming.md",
     "Timer.md",
     "Day Planners/Day Planners.md",
     "Weekly View.md",
-    "Calendar.md",
     "Recurring Tasks.md",
     "Vault.md",
     "Daily/2026-03-31.md",
