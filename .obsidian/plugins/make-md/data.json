@@ -48,7 +48,9 @@
     "//CPA",
     "//Day Planners",
     "//26-1",
-    "//CPA/CPA/05_기업법"
+    "//CPA/CPA/05_기업법",
+    "//26-1/26-1/01_네트워크보안",
+    "//26-1/26-1/01_네트워크보안/26-1/01_네트워크보안/스크립트"
   ],
   "expandFolderOnClick": true,
   "spacesFolder": "Tags",
