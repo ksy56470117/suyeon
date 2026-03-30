@@ -171,7 +171,7 @@ async function render() {
       return {
         text: rt.text,
         rawText: rt.raw,
-        completed: rt.completed,
+        completed: rt.doneDates.includes(dateStr),
         due: dateStr,
         tag: "",
         time: getTimeForDay(rt.time, dowName),
@@ -578,10 +578,25 @@ async function render() {
         const content = await app.vault.read(file);
         const lines = content.split("\n");
         if (t.line != null && lines[t.line] != null) {
-          if (t.completed) {
-            lines[t.line] = lines[t.line].replace("- [x]", "- [ ]");
+          if (t.isRecurring) {
+            // 반복 태스크: 날짜별 완료 추적 (✅ 마커 사용)
+            const dateStr = t.due;
+            const doneMatch = lines[t.line].match(/✅\s*([\d\-,]+)/);
+            let doneDates = doneMatch ? doneMatch[1].split(",").filter(Boolean) : [];
+            if (t.completed) {
+              doneDates = doneDates.filter(d => d !== dateStr);
+            } else {
+              if (!doneDates.includes(dateStr)) doneDates.push(dateStr);
+            }
+            // ✅ 부분 업데이트
+            const lineWithoutDone = lines[t.line].replace(/\s*✅\s*[\d\-,]*/, "");
+            lines[t.line] = doneDates.length > 0 ? lineWithoutDone + " ✅ " + doneDates.join(",") : lineWithoutDone;
           } else {
-            lines[t.line] = lines[t.line].replace("- [ ]", "- [x]");
+            if (t.completed) {
+              lines[t.line] = lines[t.line].replace("- [x]", "- [ ]");
+            } else {
+              lines[t.line] = lines[t.line].replace("- [ ]", "- [x]");
+            }
           }
           await app.vault.modify(file, lines.join("\n"));
         }
@@ -748,9 +763,11 @@ async function render() {
     const lines = content.split("\n");
     const tasks = [];
     for (let i = 0; i < lines.length; i++) {
-      const timePart = lines[i].match(/⏰\s*((?:\d{2}:\d{2}~\d{2}:\d{2})(?:,\d{2}:\d{2}~\d{2}:\d{2})*)/);
+      const timePart = lines[i].match(/⏰\s*((?:(?:[a-z]+:)?\d{2}:\d{2}~\d{2}:\d{2})(?:,(?:[a-z]+:)?\d{2}:\d{2}~\d{2}:\d{2})*)/);
       const timeStr = timePart ? timePart[1].trim() : null;
-      const lineWithoutTime = lines[i].replace(/\s*⏰\s*(?:\d{2}:\d{2}~\d{2}:\d{2})(?:,\d{2}:\d{2}~\d{2}:\d{2})*/, "");
+      const donePart = lines[i].match(/✅\s*([\d\-,]+)/);
+      const doneDates = donePart ? donePart[1].split(",").map(s => s.trim()).filter(Boolean) : [];
+      const lineWithoutTime = lines[i].replace(/\s*⏰\s*(?:(?:[a-z]+:)?\d{2}:\d{2}~\d{2}:\d{2})(?:,(?:[a-z]+:)?\d{2}:\d{2}~\d{2}:\d{2})*/, "").replace(/\s*✅\s*[\d\-,]*/, "");
       const m = lineWithoutTime.match(/^- \[( |x)\] (.+?)\s+(🔁\s*.+)$/);
       if (m) {
         tasks.push({
@@ -759,6 +776,7 @@ async function render() {
           text: m[2].trim(),
           recur: m[3].trim(),
           time: timeStr,
+          doneDates,
           raw: lines[i]
         });
       }
