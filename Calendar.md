@@ -153,7 +153,8 @@ async function render() {
       const p = rt.recur.replace("🔁","").trim();
       if (p === "every day") return true;
       if (p === "every weekday") return isWeekday;
-      if (p === `every ${dowName}`) return true;
+      const dayMatch = p.match(/^every (.+)$/);
+      if (dayMatch) return dayMatch[1].split(",").map(s => s.trim()).includes(dowName);
       return false;
     }).map(rt => ({
       text: rt.text,
@@ -255,7 +256,7 @@ async function render() {
         style: `display: flex; align-items: stretch; gap: 2px; margin: 1px 2px; padding: 1px 3px; background: ${color}12; border-radius: 2px; overflow: hidden;`
       }});
       chip.createEl("div", { attr: { style: `width: 2px; background: ${color}; border-radius: 1px; flex-shrink: 0;` } });
-      const chipLabel = (t.isRecurring ? "🔁 " : "") + t.text + (t.time ? ` ${t.time}` : "");
+      const chipLabel = (t.isRecurring ? "🔁 " : "") + t.text + (t.time ? ` ${t.time.split(",")[0]}` : "");
       const chipText = chip.createEl("span", { text: chipLabel, attr: {
         style: `font-size: 9px; line-height: 1.3; color: ${day.current ? "var(--text-normal)" : "var(--text-faint)"}; ${t.completed ? "text-decoration: line-through; opacity: 0.5;" : ""} font-family: 'SF Mono', ui-monospace, monospace; overflow: hidden;`
       }});
@@ -594,12 +595,14 @@ async function render() {
         tagChip.createEl("span", { text: t.tag });
       }
 
-      // 시간 배지
+      // 시간 배지 (복수 슬롯)
       if (t.time) {
-        row.createEl("span", {
-          text: `⏰ ${t.time}`,
-          attr: { style: "font-size: 11px; color: #3B82F6; background: rgba(59,130,246,0.1); padding: 2px 8px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; font-family: 'SF Mono', ui-monospace, monospace;" }
-        });
+        for (const slot of t.time.split(",")) {
+          row.createEl("span", {
+            text: `⏰ ${slot.trim()}`,
+            attr: { style: "font-size: 11px; color: #3B82F6; background: rgba(59,130,246,0.1); padding: 2px 8px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; font-family: 'SF Mono', ui-monospace, monospace;" }
+          });
+        }
       }
 
       // 우클릭 → 컨텍스트 메뉴
@@ -732,9 +735,9 @@ async function render() {
     const lines = content.split("\n");
     const tasks = [];
     for (let i = 0; i < lines.length; i++) {
-      const timePart = lines[i].match(/⏰\s*(\d{2}:\d{2}~\d{2}:\d{2})/);
-      const timeStr = timePart ? timePart[1] : null;
-      const lineWithoutTime = lines[i].replace(/\s*⏰\s*\d{2}:\d{2}~\d{2}:\d{2}/, "");
+      const timePart = lines[i].match(/⏰\s*((?:\d{2}:\d{2}~\d{2}:\d{2})(?:,\d{2}:\d{2}~\d{2}:\d{2})*)/);
+      const timeStr = timePart ? timePart[1].trim() : null;
+      const lineWithoutTime = lines[i].replace(/\s*⏰\s*(?:\d{2}:\d{2}~\d{2}:\d{2})(?:,\d{2}:\d{2}~\d{2}:\d{2})*/, "");
       const m = lineWithoutTime.match(/^- \[( |x)\] (.+?)\s+(🔁\s*.+)$/);
       if (m) {
         tasks.push({
@@ -750,8 +753,8 @@ async function render() {
     return tasks;
   }
 
-  async function addRecurTask(text, pattern, startTime, endTime) {
-    const timeSuffix = (startTime && endTime) ? ` ⏰ ${startTime}~${endTime}` : "";
+  async function addRecurTask(text, pattern, timeStr) {
+    const timeSuffix = timeStr ? ` ⏰ ${timeStr}` : "";
     const file = app.vault.getAbstractFileByPath(RECUR_PATH);
     const newLine = `- [ ] ${text} 🔁 ${pattern}${timeSuffix}`;
     if (file) {
@@ -803,18 +806,27 @@ async function render() {
 
       // 반복 패턴 배지
       const patternText = rt.recur.replace("🔁", "").trim();
-      const patternLabel = recurPatterns.find(p => p.value === patternText);
+      const _dowMap = {sunday:"일",monday:"월",tuesday:"화",wednesday:"수",thursday:"목",friday:"금",saturday:"토"};
+      function patternToLabel(p) {
+        if (p === "every day") return "매일";
+        if (p === "every weekday") return "평일";
+        const m = p.match(/^every (.+)$/);
+        if (m) return m[1].split(",").map(d => _dowMap[d.trim()] || d).join("/");
+        return p;
+      }
       rtRow.createEl("span", {
-        text: patternLabel ? patternLabel.label : patternText,
+        text: patternToLabel(patternText),
         attr: { style: "font-size: 11px; color: #2DA44E; background: rgba(45,164,78,0.1); padding: 2px 8px; border-radius: 10px; white-space: nowrap;" }
       });
 
-      // 시간 배지
+      // 시간 배지 (복수 슬롯)
       if (rt.time) {
-        rtRow.createEl("span", {
-          text: `⏰ ${rt.time}`,
-          attr: { style: "font-size: 11px; color: #3B82F6; background: rgba(59,130,246,0.1); padding: 2px 8px; border-radius: 10px; white-space: nowrap;" }
-        });
+        for (const slot of rt.time.split(",")) {
+          rtRow.createEl("span", {
+            text: `⏰ ${slot.trim()}`,
+            attr: { style: "font-size: 11px; color: #3B82F6; background: rgba(59,130,246,0.1); padding: 2px 8px; border-radius: 10px; white-space: nowrap;" }
+          });
+        }
       }
 
       // 삭제 버튼
@@ -858,50 +870,99 @@ async function render() {
     }});
     setTimeout(() => recurInput.focus(), 50);
 
-    // 시간 설정
-    const timeRow = recurFormEl.createEl("div", { attr: { style: "display: flex; align-items: center; gap: 8px; margin-bottom: 8px;" } });
-    timeRow.createEl("span", { text: "⏰", attr: { style: "font-size: 13px; flex-shrink: 0;" } });
-    const startTimeInput = timeRow.createEl("input", { attr: {
-      type: "time",
-      style: "padding: 4px 8px; border-radius: 6px; border: 1px solid var(--background-modifier-border); background: var(--background-secondary); color: var(--text-normal); font-size: 12px;"
-    }});
-    timeRow.createEl("span", { text: "~", attr: { style: "color: var(--text-muted); font-size: 13px;" } });
-    const endTimeInput = timeRow.createEl("input", { attr: {
-      type: "time",
-      style: "padding: 4px 8px; border-radius: 6px; border: 1px solid var(--background-modifier-border); background: var(--background-secondary); color: var(--text-normal); font-size: 12px;"
-    }});
-    timeRow.createEl("span", { text: "(선택)", attr: { style: "font-size: 10px; color: var(--text-faint);" } });
+    // 요일 선택 (다중)
+    const specialRow = recurFormEl.createEl("div", { attr: { style: "display: flex; gap: 4px; margin-bottom: 6px;" } });
+    const dayRow = recurFormEl.createEl("div", { attr: { style: "display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap;" } });
 
-    // 패턴 선택 (가로 스크롤 칩)
-    const patternRow = recurFormEl.createEl("div", { attr: { style: "display: flex; gap: 4px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 2px;" } });
+    let selectedSpecial = "";
+    const selectedDays = new Set();
+    const specialBtns = [];
 
-    let selectedPattern = "every day";
-    const patternBtns = [];
-
-    for (const p of recurPatterns) {
-      const isSelected = p.value === selectedPattern;
-      const btn = patternRow.createEl("span", { text: p.label, attr: {
-        style: `font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; cursor: pointer; white-space: nowrap; ${isSelected ? "color: white; background: #2DA44E;" : "color: var(--text-muted); background: var(--background-modifier-border);"}`
+    for (const sp of [{ label: "매일", value: "every day" }, { label: "평일", value: "every weekday" }]) {
+      const btn = specialRow.createEl("span", { text: sp.label, attr: {
+        style: "font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; cursor: pointer; white-space: nowrap; color: var(--text-muted); background: var(--background-modifier-border);"
       }});
       btn.addEventListener("click", (ev) => {
         ev.stopPropagation();
-        selectedPattern = p.value;
-        updatePatternSelection();
+        selectedSpecial = selectedSpecial === sp.value ? "" : sp.value;
+        if (selectedSpecial) selectedDays.clear();
+        updateDaySelection();
       });
-      patternBtns.push({ el: btn, value: p.value });
+      specialBtns.push({ el: btn, value: sp.value });
     }
 
-    function updatePatternSelection() {
-      for (const b of patternBtns) {
-        if (b.value === selectedPattern) {
-          b.el.style.background = "#2DA44E";
-          b.el.style.color = "white";
-        } else {
-          b.el.style.background = "var(--background-modifier-border)";
-          b.el.style.color = "var(--text-muted)";
-        }
+    const dayDefs = [
+      { label: "월", value: "monday" }, { label: "화", value: "tuesday" },
+      { label: "수", value: "wednesday" }, { label: "목", value: "thursday" },
+      { label: "금", value: "friday" }, { label: "토", value: "saturday" },
+      { label: "일", value: "sunday" }
+    ];
+    const dayBtns = [];
+    for (const day of dayDefs) {
+      const btn = dayRow.createEl("span", { text: day.label, attr: {
+        style: "font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; cursor: pointer; white-space: nowrap; color: var(--text-muted); background: var(--background-modifier-border);"
+      }});
+      btn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        selectedSpecial = "";
+        if (selectedDays.has(day.value)) selectedDays.delete(day.value);
+        else selectedDays.add(day.value);
+        updateDaySelection();
+      });
+      dayBtns.push({ el: btn, value: day.value });
+    }
+
+    function updateDaySelection() {
+      for (const b of specialBtns) {
+        b.el.style.background = b.value === selectedSpecial ? "#2DA44E" : "var(--background-modifier-border)";
+        b.el.style.color = b.value === selectedSpecial ? "white" : "var(--text-muted)";
+      }
+      for (const b of dayBtns) {
+        b.el.style.background = selectedDays.has(b.value) ? "#2DA44E" : "var(--background-modifier-border)";
+        b.el.style.color = selectedDays.has(b.value) ? "white" : "var(--text-muted)";
       }
     }
+
+    function getSelectedPattern() {
+      if (selectedSpecial) return selectedSpecial;
+      const dayOrder = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"];
+      const chosen = dayOrder.filter(d => selectedDays.has(d));
+      return chosen.length > 0 ? "every " + chosen.join(",") : "every day";
+    }
+
+    // 시간 슬롯 (다중 추가 가능)
+    const timeSlotsContainer = recurFormEl.createEl("div", { attr: { style: "margin-bottom: 4px;" } });
+    const timeSlotInputs = [];
+
+    function addTimeSlotRow() {
+      const slotRow = timeSlotsContainer.createEl("div", { attr: { style: "display: flex; align-items: center; gap: 6px; margin-bottom: 4px;" } });
+      slotRow.createEl("span", { text: "⏰", attr: { style: "font-size: 13px; flex-shrink: 0;" } });
+      const startInput = slotRow.createEl("input", { attr: {
+        type: "time",
+        style: "padding: 4px 8px; border-radius: 6px; border: 1px solid var(--background-modifier-border); background: var(--background-secondary); color: var(--text-normal); font-size: 12px;"
+      }});
+      slotRow.createEl("span", { text: "~", attr: { style: "color: var(--text-muted);" } });
+      const endInput = slotRow.createEl("input", { attr: {
+        type: "time",
+        style: "padding: 4px 8px; border-radius: 6px; border: 1px solid var(--background-modifier-border); background: var(--background-secondary); color: var(--text-normal); font-size: 12px;"
+      }});
+      const slotObj = { start: startInput, end: endInput };
+      timeSlotInputs.push(slotObj);
+      if (timeSlotInputs.length > 1) {
+        const removeBtn = slotRow.createEl("span", { text: "✕", attr: { style: "font-size: 11px; color: var(--text-faint); cursor: pointer; padding: 2px 4px;" } });
+        removeBtn.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          slotRow.remove();
+          timeSlotInputs.splice(timeSlotInputs.indexOf(slotObj), 1);
+        });
+      }
+    }
+    addTimeSlotRow();
+
+    const addTimeBtn = recurFormEl.createEl("button", { text: "+ 시간 추가", attr: {
+      style: "padding: 3px 8px; border: 1px dashed var(--background-modifier-border); border-radius: 6px; background: none; color: var(--text-muted); font-size: 11px; cursor: pointer; margin-bottom: 10px;"
+    }});
+    addTimeBtn.addEventListener("click", (ev) => { ev.stopPropagation(); addTimeSlotRow(); });
 
     // 하단 버튼
     const bottomRow = recurFormEl.createEl("div", { attr: { style: "display: flex; align-items: center; gap: 6px; justify-content: flex-end;" } });
@@ -921,7 +982,11 @@ async function render() {
     async function submitRecur() {
       const title = recurInput.value.trim();
       if (!title) return;
-      await addRecurTask(title, selectedPattern, startTimeInput.value || null, endTimeInput.value || null);
+      const timeStr = timeSlotInputs
+        .filter(s => s.start.value && s.end.value)
+        .map(s => `${s.start.value}~${s.end.value}`)
+        .join(",") || null;
+      await addRecurTask(title, getSelectedPattern(), timeStr);
       recurFormEl.remove(); recurFormEl = null; recurFormVisible = false;
       setTimeout(() => render(), 300);
     }
