@@ -1,8 +1,3 @@
----
-color: var(--mk-color-blue)
-cssclass: taskflow-card
----
-
 ```dataviewjs
 const container = this.container;
 container.empty();
