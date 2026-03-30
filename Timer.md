@@ -1,8 +1,3 @@
----
-cssclass: taskflow-card
-color: var(--mk-color-orange)
----
-
 ```dataviewjs
 // ── 열품타 (Study Timer) ──
 // 모든 공부 기록은 Day Planners/ 파일에 저장됩니다.
