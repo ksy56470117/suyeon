@@ -233,7 +233,7 @@ async function render() {
 
   for (let i = 0; i < days.length; i++) {
     const day = days[i];
-    const tasks = [...tasksForDate(day.key), ...recurringTasksForDate(day.key)];
+    const tasks = tasksForDate(day.key);
     const isToday = day.key === TODAY;
     const isSel = day.key === cs.selDate;
     const level = contribLevel(tasks.length);
@@ -293,7 +293,7 @@ async function render() {
   // ══════════════════════════
   // ── Issue List (선택 날짜) ──
   // ══════════════════════════
-  const selTasks = [...tasksForDate(cs.selDate), ...recurringTasksForDate(cs.selDate)];
+  const selTasks = tasksForDate(cs.selDate);
   const openCount = selTasks.filter(t => !t.completed).length;
   const closedCount = selTasks.filter(t => t.completed).length;
 
