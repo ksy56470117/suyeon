@@ -1142,6 +1142,11 @@ async function render() {
         const cColor = t.completed ? "var(--text-muted)" : "#2DA44E";
         row.createEl("span", { text: t.completed ? "✓" : "○", attr: { style: `width: 16px; text-align: center; font-size: 12px; color: ${cColor};` } });
 
+        if (t.time) {
+          const timeDisplay = t.time.includes("~") ? t.time.split("~")[0] : t.time;
+          row.createEl("span", { text: timeDisplay, attr: { style: "font-size: 10px; color: var(--text-faint); white-space: nowrap;" } });
+        }
+
         // 태그 dot
         if (t.tag) {
           const tc = getTagColor(t.tag);
@@ -1155,11 +1160,6 @@ async function render() {
           text: t.text,
           attr: { style: `font-size: 12px; ${t.completed ? "text-decoration: line-through; color: var(--text-muted);" : ""} overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;` }
         });
-
-        if (t.time) {
-          const timeDisplay = t.time.includes("~") ? t.time.split("~")[0] : t.time;
-          row.createEl("span", { text: timeDisplay, attr: { style: "font-size: 10px; color: var(--text-faint); white-space: nowrap;" } });
-        }
       }
     }
   }
