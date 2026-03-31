@@ -4,6 +4,20 @@ container.empty();
 container.addEventListener("mousedown", e => e.stopPropagation());
 container.addEventListener("click", e => e.stopPropagation());
 
+// 캘린더를 넓게 표시하기 위해 부모 컨테이너 너비 확장
+let el = container;
+while (el) {
+  if (el.classList?.contains("markdown-preview-view") || el.classList?.contains("markdown-reading-view")) {
+    el.style.maxWidth = "none";
+    el.style.width = "100%";
+  }
+  if (el.classList?.contains("cm-sizer") || el.classList?.contains("markdown-preview-sizer")) {
+    el.style.maxWidth = "none";
+    el.style.width = "100%";
+  }
+  el = el.parentElement;
+}
+
 // ── State ──
 const STATE_KEY = "obsidian-cal-state";
 // 로컬 시간 기준 YYYY-MM-DD
@@ -1273,7 +1287,7 @@ async function render() {
   // ══════════════════════════
   // ── Upcoming 패널 (오른쪽 사이드바) ──
   // ══════════════════════════
-  const upcomingPanel = outerWrap.createEl("div", { attr: { style: "width: 320px; flex-shrink: 0;" } });
+  const upcomingPanel = outerWrap.createEl("div", { attr: { style: "width: 260px; flex-shrink: 0;" } });
   const upCard = upcomingPanel.createEl("div", { attr: { style: "border: 1px solid var(--background-modifier-border); border-radius: 8px; overflow: hidden; background: var(--background-primary); margin: 8px 16px 30px 0;" } });
 
   // Upcoming 헤더
