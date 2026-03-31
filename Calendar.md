@@ -1301,7 +1301,6 @@ async function render() {
   const upcomingItems = [];
 
   for (const t of allTasks) {
-    if (t.completed) continue;
     if (!t.due) continue;
     const dueDate = new Date(t.due + "T00:00:00");
     if (isNaN(dueDate)) continue;
@@ -1318,13 +1317,11 @@ async function render() {
     const ds = localDateStr(futureDate);
     const recTasks = recurringTasksForDate(ds);
     for (const rt of recTasks) {
-      if (!rt.completed) {
-        upcomingItems.push({ ...rt, dueDate: futureDate });
-      }
+      upcomingItems.push({ ...rt, dueDate: futureDate });
     }
   }
 
-  upcomingItems.sort((a, b) => a.dueDate - b.dueDate);
+  upcomingItems.sort((a, b) => a.dueDate - b.dueDate || (a.completed ? 1 : 0) - (b.completed ? 1 : 0));
 
   // 날짜별 그룹
   const upGroups = new Map();
