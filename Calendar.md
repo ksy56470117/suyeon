@@ -182,7 +182,7 @@ async function render() {
     });
   }
 
-  const outerWrap = container.createEl("div", { attr: { style: "display: flex; gap: 0px; max-width: 1400px; margin: 0 auto; align-items: flex-start;" } });
+  const outerWrap = container.createEl("div", { attr: { style: "display: flex; gap: 0px; margin: 0 auto; align-items: flex-start;" } });
   outerWrap.addEventListener("mousedown", e => e.stopPropagation());
 
   const wrapper = outerWrap.createEl("div", { attr: { style: "flex: 1; min-width: 0;" } });
@@ -818,6 +818,21 @@ async function render() {
     }
   }
 
+  async function editRecurTask(lineNum, newText, newPattern, newTimeStr) {
+    const file = app.vault.getAbstractFileByPath(RECUR_PATH);
+    if (!file) return;
+    const content = await app.vault.read(file);
+    const lines = content.split("\n");
+    if (lines[lineNum] != null) {
+      // 기존 완료 정보 보존
+      const doneMatch = lines[lineNum].match(/✅\s*([\d\-,]+)/);
+      const doneSuffix = doneMatch ? ` ✅ ${doneMatch[1]}` : "";
+      const timeSuffix = newTimeStr ? ` ⏰ ${newTimeStr}` : "";
+      lines[lineNum] = `- [ ] ${newText} 🔁 ${newPattern}${timeSuffix}${doneSuffix}`;
+      await app.vault.modify(file, lines.join("\n"));
+    }
+  }
+
   // 기존 반복 태스크 표시
   if (recurTasks.length === 0) {
     const emptyRow = recurCard.createEl("div", { attr: { style: "display: flex; align-items: center; justify-content: center; gap: 8px; padding: 20px; color: var(--text-faint);" } });
@@ -865,6 +880,209 @@ async function render() {
           });
         }
       }
+
+      // 수정 버튼
+      const editBtn = rtRow.createEl("span", { text: "✏️", attr: {
+        style: "font-size: 11px; color: var(--text-faint); cursor: pointer; padding: 2px 4px; border-radius: 4px; flex-shrink: 0;"
+      }});
+      editBtn.addEventListener("mouseenter", () => { editBtn.style.color = "#3B82F6"; editBtn.style.background = "rgba(59,130,246,0.1)"; });
+      editBtn.addEventListener("mouseleave", () => { editBtn.style.color = "var(--text-faint)"; editBtn.style.background = "none"; });
+      editBtn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const existing = rtRow.parentElement.querySelector(`.recur-edit-form-${rt.line}`);
+        if (existing) { existing.remove(); return; }
+
+        const form = rtRow.parentElement.createEl("div", { cls: `recur-edit-form-${rt.line}`, attr: {
+          style: "padding: 10px 14px; background: var(--background-secondary); border-top: 1px solid var(--background-modifier-border);"
+        }});
+        // Move form right after the row
+        rtRow.after(form);
+        form.addEventListener("mousedown", ev2 => ev2.stopPropagation());
+        form.addEventListener("click", ev2 => ev2.stopPropagation());
+
+        // 텍스트 입력
+        const inputRow = form.createEl("div", { attr: { style: "display: flex; align-items: center; gap: 8px; margin-bottom: 8px;" } });
+        inputRow.createEl("span", { text: "🔁", attr: { style: "font-size: 14px;" } });
+        const editInput = inputRow.createEl("input", { attr: {
+          type: "text", value: rt.text,
+          style: "flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--background-modifier-border); background: var(--background-primary); color: var(--text-normal); font-size: 13px; outline: none;"
+        }});
+        setTimeout(() => editInput.focus(), 50);
+
+        // 반복 패턴 선택
+        const editSpecialRow = form.createEl("div", { attr: { style: "display: flex; gap: 4px; margin-bottom: 6px;" } });
+        const editDayRow = form.createEl("div", { attr: { style: "display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap;" } });
+
+        // 기존 패턴 파싱
+        const currentPattern = rt.recur.replace("🔁", "").trim();
+        let editSelectedSpecial = "";
+        const editSelectedDays = new Set();
+        if (currentPattern === "every day") editSelectedSpecial = "every day";
+        else if (currentPattern === "every weekday") editSelectedSpecial = "every weekday";
+        else {
+          const dm = currentPattern.match(/^every (.+)$/);
+          if (dm) dm[1].split(",").map(s => s.trim()).forEach(d => editSelectedDays.add(d));
+        }
+
+        const editSpecialBtns = [];
+        for (const sp of [{ label: "매일", value: "every day" }, { label: "평일", value: "every weekday" }]) {
+          const btn = editSpecialRow.createEl("span", { text: sp.label, attr: {
+            style: "font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; cursor: pointer; white-space: nowrap; color: var(--text-muted); background: var(--background-modifier-border);"
+          }});
+          btn.addEventListener("click", (ev2) => {
+            ev2.stopPropagation();
+            editSelectedSpecial = editSelectedSpecial === sp.value ? "" : sp.value;
+            if (editSelectedSpecial) editSelectedDays.clear();
+            updateEditDaySelection();
+          });
+          editSpecialBtns.push({ el: btn, value: sp.value });
+        }
+
+        const editDayDefs = [
+          { label: "월", value: "monday" }, { label: "화", value: "tuesday" },
+          { label: "수", value: "wednesday" }, { label: "목", value: "thursday" },
+          { label: "금", value: "friday" }, { label: "토", value: "saturday" },
+          { label: "일", value: "sunday" }
+        ];
+        const editDayBtns = [];
+        for (const day of editDayDefs) {
+          const btn = editDayRow.createEl("span", { text: day.label, attr: {
+            style: "font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; cursor: pointer; white-space: nowrap; color: var(--text-muted); background: var(--background-modifier-border);"
+          }});
+          btn.addEventListener("click", (ev2) => {
+            ev2.stopPropagation();
+            editSelectedSpecial = "";
+            if (editSelectedDays.has(day.value)) editSelectedDays.delete(day.value);
+            else editSelectedDays.add(day.value);
+            updateEditDaySelection();
+          });
+          editDayBtns.push({ el: btn, value: day.value });
+        }
+
+        // 시간 섹션
+        const editTimeSection = form.createEl("div", { attr: { style: "margin-bottom: 10px;" } });
+        let editTimeSlotInputs = [];
+        const editPerDayTimeMap = {};
+        const editTimeInputStyle = "padding: 4px 8px; border-radius: 6px; border: 1px solid var(--background-modifier-border); background: var(--background-primary); color: var(--text-normal); font-size: 12px;";
+
+        // 기존 시간 파싱
+        const existingTimeSlots = [];
+        const existingPerDayTime = {};
+        if (rt.time) {
+          const isPerDay = /^\w+:\d{2}:\d{2}/.test(rt.time);
+          if (isPerDay) {
+            for (const entry of rt.time.split(",")) {
+              const m = entry.match(/^(\w+):(.+)$/);
+              if (m) {
+                const times = m[2].trim().split("~");
+                existingPerDayTime[m[1].trim()] = { start: times[0], end: times[1] || "" };
+              }
+            }
+          } else {
+            for (const slot of rt.time.split(",")) {
+              const times = slot.trim().split("~");
+              existingTimeSlots.push({ start: times[0], end: times[1] || "" });
+            }
+          }
+        }
+
+        function renderEditCommonTime() {
+          editTimeSection.empty();
+          editTimeSlotInputs = [];
+          function addSlot(startVal, endVal) {
+            const slotRow = editTimeSection.createEl("div", { attr: { style: "display: flex; align-items: center; gap: 6px; margin-bottom: 4px;" } });
+            slotRow.createEl("span", { text: "⏰", attr: { style: "font-size: 13px; flex-shrink: 0;" } });
+            const start = slotRow.createEl("input", { attr: { type: "time", value: startVal || "", style: editTimeInputStyle } });
+            slotRow.createEl("span", { text: "~", attr: { style: "color: var(--text-muted);" } });
+            const end = slotRow.createEl("input", { attr: { type: "time", value: endVal || "", style: editTimeInputStyle } });
+            const slot = { start, end };
+            editTimeSlotInputs.push(slot);
+            if (editTimeSlotInputs.length > 1) {
+              const removeBtn = slotRow.createEl("span", { text: "✕", attr: { style: "font-size: 11px; color: var(--text-faint); cursor: pointer; padding: 2px 4px;" } });
+              removeBtn.addEventListener("click", (ev2) => { ev2.stopPropagation(); slotRow.remove(); editTimeSlotInputs.splice(editTimeSlotInputs.indexOf(slot), 1); });
+            }
+          }
+          if (existingTimeSlots.length > 0) {
+            for (const s of existingTimeSlots) addSlot(s.start, s.end);
+          } else {
+            addSlot("", "");
+          }
+          const addBtn = editTimeSection.createEl("button", { text: "+ 시간 추가", attr: { style: "padding: 3px 8px; border: 1px dashed var(--background-modifier-border); border-radius: 6px; background: none; color: var(--text-muted); font-size: 11px; cursor: pointer;" } });
+          addBtn.addEventListener("click", (ev2) => { ev2.stopPropagation(); addSlot("", ""); });
+        }
+
+        function renderEditPerDayTime() {
+          editTimeSection.empty();
+          Object.keys(editPerDayTimeMap).forEach(k => delete editPerDayTimeMap[k]);
+          const dayOrder = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"];
+          const dayLabelMap = {monday:"월",tuesday:"화",wednesday:"수",thursday:"목",friday:"금",saturday:"토",sunday:"일"};
+          for (const day of dayOrder) {
+            if (!editSelectedDays.has(day)) continue;
+            const row = editTimeSection.createEl("div", { attr: { style: "display: flex; align-items: center; gap: 6px; margin-bottom: 4px;" } });
+            row.createEl("span", { text: dayLabelMap[day], attr: { style: "font-size: 11px; font-weight: 700; color: #2DA44E; width: 14px; flex-shrink: 0;" } });
+            row.createEl("span", { text: "⏰", attr: { style: "font-size: 13px; flex-shrink: 0;" } });
+            const existing = existingPerDayTime[day];
+            const start = row.createEl("input", { attr: { type: "time", value: existing?.start || "", style: editTimeInputStyle } });
+            row.createEl("span", { text: "~", attr: { style: "color: var(--text-muted);" } });
+            const end = row.createEl("input", { attr: { type: "time", value: existing?.end || "", style: editTimeInputStyle } });
+            editPerDayTimeMap[day] = { start, end };
+          }
+        }
+
+        function updateEditDaySelection() {
+          for (const b of editSpecialBtns) {
+            b.el.style.background = b.value === editSelectedSpecial ? "#2DA44E" : "var(--background-modifier-border)";
+            b.el.style.color = b.value === editSelectedSpecial ? "white" : "var(--text-muted)";
+          }
+          for (const b of editDayBtns) {
+            b.el.style.background = editSelectedDays.has(b.value) ? "#2DA44E" : "var(--background-modifier-border)";
+            b.el.style.color = editSelectedDays.has(b.value) ? "white" : "var(--text-muted)";
+          }
+          if (editSelectedSpecial || editSelectedDays.size === 0) renderEditCommonTime();
+          else renderEditPerDayTime();
+        }
+
+        updateEditDaySelection();
+
+        // 하단 버튼
+        const editBottomRow = form.createEl("div", { attr: { style: "display: flex; align-items: center; gap: 6px; justify-content: flex-end;" } });
+        const editCancelBtn = editBottomRow.createEl("button", { text: "취소", attr: {
+          style: "padding: 4px 10px; border: none; background: none; color: var(--text-muted); font-size: 11px; cursor: pointer;"
+        }});
+        editCancelBtn.addEventListener("click", (ev2) => { ev2.stopPropagation(); form.remove(); });
+
+        const editSaveBtn = editBottomRow.createEl("button", { text: "저장", attr: {
+          style: "padding: 4px 12px; border: none; border-radius: 6px; background: #2DA44E; color: white; font-size: 11px; font-weight: 600; cursor: pointer;"
+        }});
+
+        async function saveEdit() {
+          const newText = editInput.value.trim();
+          if (!newText) return;
+          let newPattern;
+          if (editSelectedSpecial) newPattern = editSelectedSpecial;
+          else {
+            const dayOrder = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"];
+            const chosen = dayOrder.filter(d => editSelectedDays.has(d));
+            newPattern = chosen.length > 0 ? "every " + chosen.join(",") : "every day";
+          }
+          let newTimeStr = null;
+          if (editSelectedSpecial || editSelectedDays.size === 0) {
+            newTimeStr = editTimeSlotInputs.filter(s => s.start.value && s.end.value).map(s => `${s.start.value}~${s.end.value}`).join(",") || null;
+          } else {
+            const dayOrder = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"];
+            const parts = dayOrder.filter(d => editSelectedDays.has(d) && editPerDayTimeMap[d]?.start.value && editPerDayTimeMap[d]?.end.value).map(d => `${d}:${editPerDayTimeMap[d].start.value}~${editPerDayTimeMap[d].end.value}`);
+            newTimeStr = parts.length > 0 ? parts.join(",") : null;
+          }
+          await editRecurTask(rt.line, newText, newPattern, newTimeStr);
+          setTimeout(() => render(), 300);
+        }
+
+        editSaveBtn.addEventListener("click", (ev2) => { ev2.stopPropagation(); saveEdit(); });
+        editInput.addEventListener("keydown", (ev2) => {
+          if (ev2.key === "Enter") { ev2.stopPropagation(); saveEdit(); }
+          if (ev2.key === "Escape") { ev2.stopPropagation(); form.remove(); }
+        });
+      });
 
       // 삭제 버튼
       const delBtn = rtRow.createEl("span", { text: "✕", attr: {
@@ -1138,9 +1356,40 @@ async function render() {
         const row = upBody.createEl("div", { attr: {
           style: "display: flex; align-items: center; gap: 6px; padding: 3px 12px; min-height: 28px;"
         }});
+        row.addEventListener("mousedown", ev => ev.stopPropagation());
+        row.addEventListener("click", ev => ev.stopPropagation());
 
         const cColor = t.completed ? "var(--text-muted)" : "#2DA44E";
-        row.createEl("span", { text: t.completed ? "✓" : "○", attr: { style: `width: 16px; text-align: center; font-size: 12px; color: ${cColor};` } });
+        const checkEl = row.createEl("span", { text: t.completed ? "✓" : "○", attr: { style: `width: 16px; text-align: center; font-size: 12px; color: ${cColor}; cursor: pointer; flex-shrink: 0;` } });
+        checkEl.addEventListener("click", async (ev) => {
+          ev.stopPropagation();
+          const file = app.vault.getAbstractFileByPath(t.path);
+          if (!file) return;
+          const content = await app.vault.read(file);
+          const lines = content.split("\n");
+          if (t.line != null && lines[t.line] != null) {
+            if (t.isRecurring) {
+              const dateStr = t.due;
+              const doneMatch = lines[t.line].match(/✅\s*([\d\-,]+)/);
+              let doneDates = doneMatch ? doneMatch[1].split(",").filter(Boolean) : [];
+              if (t.completed) {
+                doneDates = doneDates.filter(d => d !== dateStr);
+              } else {
+                if (!doneDates.includes(dateStr)) doneDates.push(dateStr);
+              }
+              const lineWithoutDone = lines[t.line].replace(/\s*✅\s*[\d\-,]*/, "");
+              lines[t.line] = doneDates.length > 0 ? lineWithoutDone + " ✅ " + doneDates.join(",") : lineWithoutDone;
+            } else {
+              if (t.completed) {
+                lines[t.line] = lines[t.line].replace("- [x]", "- [ ]");
+              } else {
+                lines[t.line] = lines[t.line].replace("- [ ]", "- [x]");
+              }
+            }
+            await app.vault.modify(file, lines.join("\n"));
+          }
+          setTimeout(() => render(), 300);
+        });
 
         if (t.time) {
           const timeDisplay = t.time.includes("~") ? t.time.split("~")[0] : t.time;
