@@ -45,9 +45,9 @@
       "location": "modal",
       "modalButtonVisibility": "hover",
       "voiceChat": false,
-      "provider": "openai",
+      "provider": "perplexity",
       "openRouterTier": "free",
-      "model": "gpt-4.1-mini",
+      "model": "sonar-pro",
       "endpointOverride": "",
       "apiKeys": {
         "openai": "",
@@ -168,15 +168,15 @@
       "layout": "masonry",
       "cardMode": "flip",
       "visibleFields": {
-        "title": true,
+        "title": false,
         "question": true,
         "options": false,
         "answer": true,
         "info": false,
-        "groups": true,
-        "edit": true
+        "groups": false,
+        "edit": false
       },
-      "displayLabels": true,
+      "displayLabels": false,
       "cardBgLight": "",
       "cardBgDark": "",
       "cardBorderLight": "",
