@@ -25,5 +25,7 @@
   "templater-obsidian",
   "code-styler",
   "table-editor-obsidian",
-  "obsidian-spaced-repetition"
+  "obsidian-spaced-repetition",
+  "simple-anki-sync",
+  "flashcard-learning"
 ]
