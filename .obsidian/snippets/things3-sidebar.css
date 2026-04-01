@@ -92,25 +92,10 @@
   padding-left: 0 !important;
 }
 
-/* 계층별 점진적 들여쓰기 */
-/* Level 1: 루트 바로 아래 (최상위 폴더 내부) */
-.nav-folder.mod-root > .nav-folder-children > .nav-folder > .nav-folder-children {
-  margin-left: 8px !important;
-}
-
-/* Level 2 */
-.nav-folder.mod-root > .nav-folder-children > .nav-folder > .nav-folder-children .nav-folder-children {
-  margin-left: 16px !important;
-}
-
-/* Level 3 */
-.nav-folder.mod-root > .nav-folder-children > .nav-folder > .nav-folder-children .nav-folder-children .nav-folder-children {
-  margin-left: 24px !important;
-}
-
-/* Level 4+ */
-.nav-folder.mod-root > .nav-folder-children > .nav-folder > .nav-folder-children .nav-folder-children .nav-folder-children .nav-folder-children {
-  margin-left: 32px !important;
+/* ─── Make.md 계층별 들여쓰기 강화 ──────────────────── */
+/* --spacing 변수를 2배로 스케일업하여 계층 구분 강화 */
+.mk-tree-item {
+  margin-left: calc(var(--spacing) * 2) !important;
 }
 
 /* ─── Sidebar Left Panel ────────────────────────────── */
