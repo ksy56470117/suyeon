@@ -89,8 +89,28 @@
 /* ─── Indentation Guide Lines ───────────────────────── */
 .nav-folder-children {
   border-left: none !important;
-  margin-left: 12px !important;
   padding-left: 0 !important;
+}
+
+/* 계층별 점진적 들여쓰기 */
+/* Level 1: 루트 바로 아래 (최상위 폴더 내부) */
+.nav-folder.mod-root > .nav-folder-children > .nav-folder > .nav-folder-children {
+  margin-left: 8px !important;
+}
+
+/* Level 2 */
+.nav-folder.mod-root > .nav-folder-children > .nav-folder > .nav-folder-children .nav-folder-children {
+  margin-left: 16px !important;
+}
+
+/* Level 3 */
+.nav-folder.mod-root > .nav-folder-children > .nav-folder > .nav-folder-children .nav-folder-children .nav-folder-children {
+  margin-left: 24px !important;
+}
+
+/* Level 4+ */
+.nav-folder.mod-root > .nav-folder-children > .nav-folder > .nav-folder-children .nav-folder-children .nav-folder-children .nav-folder-children {
+  margin-left: 32px !important;
 }
 
 /* ─── Sidebar Left Panel ────────────────────────────── */
