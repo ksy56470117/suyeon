@@ -3,7 +3,7 @@
     "supercharged-links-gen",
     "taskflow-theme"
   ],
-  "theme": "moonstone",
+  "theme": "obsidian",
   "interfaceFontFamily": "Inter",
   "textFontFamily": "Apple SD Gothic Neo",
   "monospaceFontFamily": "Inter"
