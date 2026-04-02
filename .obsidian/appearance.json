@@ -1,10 +1,11 @@
 {
   "enabledCssSnippets": [
     "supercharged-links-gen",
-    "taskflow-theme"
+    "taskflow-theme",
+    "things3-sidebar"
   ],
   "theme": "obsidian",
   "interfaceFontFamily": "Inter",
-  "textFontFamily": "Apple SD Gothic Neo",
+  "textFontFamily": "Inter",
   "monospaceFontFamily": "Inter"
 }
