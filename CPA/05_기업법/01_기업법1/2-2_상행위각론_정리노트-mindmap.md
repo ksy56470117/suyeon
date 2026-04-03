@@ -1,7 +1,6 @@
 ---
-
 mindmap-plugin: markdown
-
+mindmap:
 ---
 # 2-2. 상행위각론 — CPA 체계 정리노트
 
