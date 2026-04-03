@@ -8,8 +8,8 @@
       "pinnedDecks": [],
       "workspaceContentZoom": 1,
       "githubStars": {
-        "count": 67,
-        "fetchedAt": 1775063041189
+        "count": 68,
+        "fetchedAt": 1775221465575
       },
       "enableAnimations": true,
       "themePreset": "glass",
@@ -390,12 +390,5 @@
       "pitch": 1,
       "preferredVoiceURI": ""
     }
-  },
-  "versionTracking": {
-    "lastSeenVersion": "1.2.6",
-    "dismissedVersions": [],
-    "forcedReshowMigrationsApplied": [
-      "1.2.0"
-    ]
   }
 }
