@@ -9,7 +9,7 @@
     "makeHeadersTrees": true,
     "postProcess": true,
     "displayProgress": true,
-    "inlineHTML": false,
+    "inlineHTML": true,
     "exportPath": "/Users/a1/Library/Mobile Documents/iCloud~md~obsidian/Documents/suyeon/CPA/05_기업법/01_기업법1/mindmaps",
     "filesToExport": [],
     "useFallbackRenderer": false,
@@ -68,8 +68,8 @@
     },
     "fileNavigationOptions": {
       "featureId": "file-navigation",
-      "enabled": true,
-      "unavailable": false,
+      "enabled": false,
+      "unavailable": true,
       "alwaysEnabled": false,
       "hideSettingsButton": false,
       "featurePlacement": {
@@ -125,8 +125,8 @@
     },
     "graphViewOptions": {
       "featureId": "graph-view",
-      "enabled": true,
-      "unavailable": false,
+      "enabled": false,
+      "unavailable": true,
       "alwaysEnabled": false,
       "hideSettingsButton": false,
       "featurePlacement": {
@@ -204,10 +204,10 @@
     "inlineJS": true,
     "inlineFonts": true,
     "inlineOther": true,
-    "combineAsSingleFile": true,
+    "combineAsSingleFile": false,
     "offlineResources": false,
     "themeName": "",
-    "slugifyPaths": true,
+    "slugifyPaths": false,
     "flattenExportPaths": false,
     "fixLinks": true,
     "faviconPath": "",
@@ -223,7 +223,7 @@
   "rssDateProperty": "date",
   "onlyExportModified": true,
   "deleteOldFiles": true,
-  "exportPreset": "local",
+  "exportPreset": "raw-documents",
   "openAfterExport": true,
   "filePickerBlacklist": [
     "(^|\\/)node_modules\\/",
