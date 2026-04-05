@@ -41,3 +41,11 @@ WHERE choice(
 
 ## 메모
 
+
+
+---
+
+## ✏️ 자유 필기
+
+![[Excalidraw/<% tp.date.now("YYYY-MM-DD") %>.excalidraw]]
+
