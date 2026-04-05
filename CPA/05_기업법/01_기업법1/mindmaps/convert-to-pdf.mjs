@@ -1,7 +1,7 @@
 import { Transformer } from 'markmap-lib';
 import { fillTemplate } from 'markmap-render';
 import puppeteer from 'puppeteer';
-import { readFile, readdir, mkdir } from 'fs/promises';
+import { readFile, readdir, mkdir, writeFile } from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -14,7 +14,7 @@ async function mdToMindmapPDF(inputFile, outputFile) {
 
   // frontmatter 제거
   markdown = markdown.replace(/^---[\s\S]*?---\s*/, '');
-  // blockquote/링크 라인 제거 (마인드맵 렌더링에 불필요)
+  // blockquote 관련 라인 제거
   markdown = markdown.replace(/^>\s*관련:.*$/gm, '');
   // 수평선 제거
   markdown = markdown.replace(/^---\s*$/gm, '');
@@ -23,71 +23,85 @@ async function mdToMindmapPDF(inputFile, outputFile) {
   const { root, features } = transformer.transform(markdown);
   const assets = transformer.getUsedAssets(features);
 
-  // 커스텀 HTML: 마인드맵을 꽉 채우고, 한글 폰트 적용
-  const html = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<style>
-  body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
-  #mindmap { width: 100vw; height: 100vh; }
-  /* 한글 폰트 */
+  // fillTemplate으로 완전한 인라인 HTML 생성
+  let html = fillTemplate(root, assets, {
+    jsonOptions: {
+      duration: 0,
+      maxWidth: 350,
+      initialExpandLevel: -1,
+    },
+  });
+
+  // 한글 폰트 + 배경색 주입
+  html = html.replace('</style>', `
   * { font-family: -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important; }
-</style>
-${assets.styles.map(s => `<link rel="stylesheet" href="${s.data.href}">`).join('\n')}
-${assets.scripts.map(s => `<script src="${s.data.src}"><\/script>`).join('\n')}
-</head>
-<body>
-<svg id="mindmap"></svg>
+  body { background: white; }
+</style>`);
+
+  // fit 호출 주입 - 마인드맵이 뷰포트에 맞게
+  html = html.replace('</body>', `
 <script>
-  const { Markmap, loadCSS, loadJS } = window.markmap;
-  const root = ${JSON.stringify(root)};
-  const mm = Markmap.create('svg#mindmap', {
-    duration: 0,
-    maxWidth: 400,
-    initialExpandLevel: -1,
-    fitRatio: 0.92,
-    paddingX: 20,
-  }, root);
-  // 렌더 후 fit
-  setTimeout(() => mm.fit(), 500);
-<\/script>
-</body>
-</html>`;
+  setTimeout(() => {
+    const mm = document.querySelector('#mindmap').__markmap;
+    if (mm) mm.fit();
+  }, 1000);
+</script>
+</body>`);
 
   const browser = await puppeteer.launch({ headless: 'new' });
   const page = await browser.newPage();
 
-  // 큰 뷰포트로 마인드맵이 잘 펼쳐지게
   await page.setViewport({ width: 2400, height: 1600, deviceScaleFactor: 2 });
-  await page.setContent(html, { waitUntil: 'networkidle2' });
 
-  // SVG 렌더링 대기
+  // file:// 대신 setContent로 직접 주입 (네트워크 불필요)
+  await page.setContent(html, { waitUntil: 'load', timeout: 10000 });
+
+  // 렌더링 대기
   await new Promise(r => setTimeout(r, 3000));
 
-  // SVG 크기 측정해서 PDF 크기 맞추기
+  // 콘솔 에러 체크 (디버깅)
+  const errors = [];
+  page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
+  page.on('pageerror', err => errors.push(err.message));
+
+  // SVG에 실제 내용이 있는지 확인
+  const hasContent = await page.evaluate(() => {
+    const svg = document.querySelector('#mindmap');
+    if (!svg) return false;
+    const g = svg.querySelector('g');
+    return g && g.children.length > 0;
+  });
+
+  if (!hasContent) {
+    // 디버깅: HTML 저장
+    const debugPath = outputFile.replace('.pdf', '.debug.html');
+    await writeFile(debugPath, html);
+    await browser.close();
+    throw new Error(`마인드맵 렌더링 실패 (debug HTML 저장: ${path.basename(debugPath)})`);
+  }
+
+  // SVG 바운딩 박스 측정
   const svgBox = await page.evaluate(() => {
     const svg = document.querySelector('#mindmap');
     const g = svg.querySelector('g');
-    if (!g) return null;
     const bbox = g.getBBox();
-    return { width: bbox.width + 100, height: bbox.height + 100 };
+    return { width: bbox.width + 120, height: bbox.height + 120 };
   });
 
-  const pdfWidth = svgBox ? Math.max(svgBox.width / 2, 1200) : 1600;
-  const pdfHeight = svgBox ? Math.max(svgBox.height / 2, 900) : 1200;
+  const pdfWidth = Math.max(Math.ceil(svgBox.width / 1.5), 1200);
+  const pdfHeight = Math.max(Math.ceil(svgBox.height / 1.5), 900);
 
   await page.pdf({
     path: outputFile,
     width: `${pdfWidth}px`,
     height: `${pdfHeight}px`,
     printBackground: true,
-    margin: { top: 20, right: 20, bottom: 20, left: 20 },
+    margin: { top: 30, right: 30, bottom: 30, left: 30 },
   });
 
   await browser.close();
   const name = path.basename(outputFile);
-  console.log(`✓ ${name}`);
+  console.log(`✓ ${name} (${pdfWidth}x${pdfHeight})`);
 }
 
 async function main() {
